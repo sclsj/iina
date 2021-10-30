@@ -76,6 +76,11 @@ class MainMenuActionHandler: NSResponder {
 extension MainMenuActionHandler {
   @objc func menuTogglePause(_ sender: NSMenuItem) {
     player.togglePause()
+    // set speed to 0 if is fastforwarding
+    if player.mainWindow.isFastforwarding {
+      player.setSpeed(1)
+      player.mainWindow.isFastforwarding = false
+    }
   }
 
   @objc func menuStop(_ sender: NSMenuItem) {
@@ -192,6 +197,12 @@ extension MainMenuActionHandler {
 
   @objc func menuChangeCrop(_ sender: NSMenuItem) {
     if let cropStr = sender.representedObject as? String {
+      if cropStr == "Custom" {
+        player.mainWindow.hideSideBar {
+          self.player.mainWindow.enterInteractiveMode(.crop, selectWholeVideoByDefault: true)
+        }
+        return
+      }
       player.setCrop(fromString: cropStr)
     } else {
       Logger.log("sender.representedObject is not a string in menuChangeCrop()", level: .error)
